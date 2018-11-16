@@ -50,21 +50,29 @@
         "sudo apt-get install -y aptitude jq python-minimal python-pip git",
         "sudo -H pip install pip --upgrade",
         "sudo -H pip install git+https://github.com/ansible/ansible.git@devel boto3",
-        "echo 'PATH=\"/root/bin:/root/.local/bin:$PATH\"' | sudo tee --append /root/.profile"
+        "echo 'PATH=\"/root/bin:/root/.local/bin:$PATH\"' | sudo tee --append /root/.profile",
+        "sudo /usr/sbin/useradd ubuntu -G sudo -d /home/ubuntu --create-home",
+        "echo 'ubuntu        ALL=(ALL)       NOPASSWD: ALL' | sudo tee --append /etc/sudoers.d/ubuntu",
+        "sudo chmod 440 /etc/sudoers.d/ubuntu"
       ]
     },
     {
-      "type": "shell-local",
-  	  "command": "ansible-galaxy install --force -v --roles-path='./ansible/roles' --role-file='./ansible/requirements.yml'"
-    },
-    {
-      "type": "ansible",
-      "user": "root",
+      "type": "ansible-local",
+      "playbook_dir": "./ansible",
+      "galaxy_file": "./ansible/requirements.yml",
       "playbook_file": "./ansible/playbook_local.yml"
     },
     {
-      "type": "shell-local",
-  	  "command": "export PACKER_BUILDER='amazon-ebs'; export AMI_NAME='{{ user `ami_name` }}'; export SSH_PRIVATE_KEY_FILE='{{ user `ssh_private_key_file` }}'; rake spec"
+      "type": "file",
+      "source": "./serverspec",
+      "destination": "/tmp/"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "gem install serverspec",
+        "cd /tmp/serverspec; rake spec"
+      ]
     }
   ],
   "post-processors": [

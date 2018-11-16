@@ -41,45 +41,35 @@
   ],
   "provisioners": [
     {
+      "type": "shell",
+      "inline": [
+        "sleep 15s",
+        "sudo apt-get update",
+        "sudo apt-get install -y aptitude jq python-minimal python-pip git",
+        "sudo -H pip install pip --upgrade",
+        "sudo -H pip install git+https://github.com/ansible/ansible.git@devel boto3",
+        "echo 'PATH=\"/root/bin:/root/.local/bin:$PATH\"' | sudo tee --append /root/.profile",
+        "sudo /usr/sbin/useradd ubuntu -G sudo -d /home/ubuntu --create-home",
+        "echo 'ubuntu        ALL=(ALL)       NOPASSWD: ALL' | sudo tee --append /etc/sudoers.d/ubuntu",
+        "sudo chmod 440 /etc/sudoers.d/ubuntu"
+      ]
+    },
+    {
       "type": "ansible-local",
       "playbook_dir": "./ansible",
       "galaxy_file": "./ansible/requirements.yml",
-      "playbook_file": "./ansible/playbook.yml"
-    },
-    {
-	  "type": "file",
-	  "source": "restart_elk_services.sh",
-	  "destination": "/home/vagrant/restart_elk_services.sh"
-	},
-    {
-	  "type": "file",
-	  "source": "check_elk_services.sh",
-	  "destination": "/home/vagrant/check_elk_services.sh"
-	},
-    {
-      "type": "shell",
-      "execute_command": "echo '{{ user `ssh_password` }}' | sudo -E -S bash '{{.Path}}'",
-      "scripts": [
-        "restart_elk_services.sh",
-        "check_elk_services.sh"
-      ]
-    },
-    {
-      "type": "shell",
-      "inline": [
-        "mkdir -p /home/vagrant/{{ user `project_name` }}/serverspec"
-      ]
+      "playbook_file": "./ansible/playbook_local.yml"
     },
     {
       "type": "file",
       "source": "./serverspec",
-      "destination": "/home/vagrant/{{ user `project_name` }}"
+      "destination": "/tmp/"
     },
     {
       "type": "shell",
       "inline": [
-        "cd /home/vagrant/{{ user `project_name` }}/serverspec",
-        "rake spec"
+        "gem install serverspec",
+        "cd /tmp/serverspec; rake spec"
       ]
     }
   ],
@@ -95,7 +85,7 @@
 	    "type": "vagrant-cloud",
 	    "box_tag": "{{user `atlas_box_tag`}}",
 	    "access_token": "{{user `atlas_token`}}",
-	    "no_release": "true",
+	    "no_release": "false",
 	    "version": "{{user `version_simple`}}"
 	  }
 	]
