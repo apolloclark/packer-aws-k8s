@@ -13,5 +13,7 @@
     - geerlingguy.git
     - apolloclark.nano_highlighting
     - apolloclark.aws_cli
+    - rvm.ruby
+    - geerlingguy.ruby
     - geerlingguy.docker
     - geerlingguy.kubernetes

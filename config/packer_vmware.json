@@ -8,7 +8,7 @@
     "memory": "4096",
     "hostname": "vagrant",
     "project_name": "packer-aws-elk",
-    "source_path": "../../packer-aws-java/output/vmware/ubuntu1604-java.vmx",
+    "source_path": "../../packer-aws-java/base/output/vmware/ubuntu1604-java.vmx",
     "ssh_password": "vagrant",
     "ssh_username": "vagrant",
     "vagrantfile_template": "vagrantfile.tpl",
@@ -67,6 +67,7 @@
     },
     {
       "type": "shell",
+      "execute_command": "echo '{{ user `ssh_password` }}' | sudo -E -S bash '{{.Path}}'",
       "inline": [
         "gem install serverspec",
         "cd /tmp/serverspec; rake spec"

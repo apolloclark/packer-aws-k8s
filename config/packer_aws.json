@@ -69,6 +69,7 @@
     },
     {
       "type": "shell",
+      "execute_command": "echo '{{ user `ssh_password` }}' | sudo -E -S bash '{{.Path}}'",
       "inline": [
         "gem install serverspec",
         "cd /tmp/serverspec; rake spec"
