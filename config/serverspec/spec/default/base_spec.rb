@@ -1,4 +1,25 @@
-require 'spec_helper'
+require_relative '../spec_helper'
+
+# Define installed packages
+Packages = {
+  'docker-ce' => {
+    version: '17.03.3~ce-0~ubuntu-xenial'
+  }
+}
+
+# Define Installed services
+InstalledServices = [
+  'docker',
+  'kubelet'
+]
+
+# Define Active services
+ActiveServices = [
+  'docker',
+  'kubelet'
+]
+
+
 
 # https://www.singlestoneconsulting.com/articles/writing-efficient-infrastructure-tests-with-serverspec
 # Verify packages

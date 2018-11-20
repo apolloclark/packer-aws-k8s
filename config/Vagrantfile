@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure(2) do |config|
+
     # Ubuntu 16.04 Xenial LTS 64-bit
     config.vm.box = "apolloclark/ubuntu16.04"
 
@@ -38,5 +39,15 @@ Vagrant.configure(2) do |config|
     config.vm.provision "ansible_local" do |ansible|
         ansible.galaxy_role_file = "./ansible/requirements.yml"
         ansible.playbook = "./ansible/playbook.yml"
+    end
+
+    # Verify the components are installed and running
+    # https://github.com/vvchik/vagrant-serverspec
+    # This plugin uses it's own custom Rakefile, but will reuse any existing
+    # local spec_helper.rb script
+    config.vm.provision "serverspec" do |spec|
+      
+        # pattern for specfiles to search
+        spec.pattern = 'serverspec/spec/*/*_spec.rb'
     end
 end

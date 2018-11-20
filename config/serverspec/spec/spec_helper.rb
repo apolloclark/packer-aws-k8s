@@ -47,6 +47,21 @@ begin
       set :host,        options[:host_name] || host
       set :ssh_options, options
       set :backend, :ssh
+    else
+      puts "vagrant, automatic serverspec run..."
+      host = "default"
+    
+      # retrieve the vagrant ssh config
+      config = Tempfile.new('', Dir.tmpdir)
+      config.write(`vagrant ssh-config #{host}`)
+      config.close
+      
+      # configure the SSH connection for serverspec
+      options = Net::SSH::Config.for(host, [config.path])
+      options[:user] ||= Etc.getlogin
+      set :host,        options[:host_name] || host
+      set :ssh_options, options
+      set :backend, :ssh
     end
   end
 rescue Errno::ENOENT => e
@@ -154,73 +169,3 @@ if packer_status != 'none'
   end
 end
 
-
-
-# Disable sudo
-# set :disable_sudo, true
-
-
-# Set environment variables
-# set :env, :LANG => 'C', :LC_MESSAGES => 'C'
-
-# Set PATH
-# set :path, '/sbin:/usr/local/sbin:$PATH'
-
-
-
-# Define installed packages
-Packages = {
-  'filebeat' => {
-    version: '6.4.2'
-  },
-  'metricbeat' => {
-    version: '6.4.2'
-  },
-  'heartbeat-elastic' => {
-    version: '6.4.2'
-  },
-  'packetbeat' => {
-    version: '6.4.2'
-  },
-  'auditbeat' => {
-    version: '6.4.2'
-  },
-  'elasticsearch' => {
-    version: '6.4.2'
-  },
-  'logstash' => {
-    version: '1:6.4.2-1'
-  },
-  'kibana' => {
-    version: '6.4.2'
-  },
-  'osquery' => {
-    version: '2.11.0-1.linux'
-  }
-}
-
-# Define Installed services
-InstalledServices = [
-  'filebeat',
-  'metricbeat',
-  'heartbeat-elastic',
-  'packetbeat',
-  'auditbeat',
-  'elasticsearch',
-  'logstash',
-  'kibana',
-  'osqueryd'
-]
-
-# Define Active services
-ActiveServices = [
-  'filebeat',
-  'metricbeat',
-  'heartbeat-elastic',
-  'packetbeat',
-  'auditbeat',
-  'elasticsearch',
-  'logstash',
-  'kibana',
-  'osqueryd'
-]

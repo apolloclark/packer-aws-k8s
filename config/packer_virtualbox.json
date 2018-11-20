@@ -1,7 +1,7 @@
 {
   "variables": {
     "ansible_user": "vagrant",
-  	"atlas_box_tag": "apolloclark/ubuntu16.04-elk",
+  	"atlas_box_tag": "apolloclark/ubuntu16.04-k8s",
     "atlas_token": "{{ env `ATLAS_TOKEN` }}",
     "cpus": "1",
     "headless": "true",
@@ -12,7 +12,7 @@
     "ssh_password": "vagrant",
     "ssh_username": "vagrant",
     "vagrantfile_template": "vagrantfile.tpl",
-    "vm_name": "ubuntu1604-k8s",
+    "vm_name": "packer-aws-k8s",
     "version": "{{isotime \"20060102.030405\"}}",
     "version_simple": "{{isotime \"20060102\"}}"
   },
@@ -70,9 +70,10 @@
     },
     {
       "type": "shell",
-      "execute_command": "echo '{{ user `ssh_password` }}' | sudo -E -S bash '{{.Path}}'",
+      "execute_command": "echo '{{ user `ssh_password` }}' | sudo -E -S bash -e '{{.Path}}'",
       "inline": [
-        "gem install serverspec"
+        "gem install serverspec",
+        "cd /tmp/serverspec; rake spec"
       ]
     }
   ],

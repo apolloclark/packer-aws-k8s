@@ -5,7 +5,7 @@
     "aws_region": "{{env `AWS_REGION`}}",
     "ssh_keypair_name": "{{env `SSH_KEYPAIR_NAME`}}",
     "ssh_private_key_file": "{{env `SSH_PRIVATE_KEY_FILE`}}",
-    "ami_name": "packer-aws-beats-{{isotime \"2006-01-02_15-04-06\"}}",
+    "ami_name": "packer-aws-k8s-{{isotime \"2006-01-02_15-04-06\"}}",
     "version": "{{isotime \"20060102.030405\"}}"
   },
   "builders": [
@@ -35,7 +35,7 @@
       "run_volume_tags": {
         "Name": "{{user `ami_name`}}"
       },
-      "ami_description": "Base Image, with Elastic monitoring agents",
+      "ami_description": "Kubernetes base image",
       "associate_public_ip_address": "true",
       "vpc_id": "{{user `vpc`}}",
       "subnet_id": "{{user `subnet`}}"
@@ -51,7 +51,6 @@
         "sudo -H pip install pip --upgrade",
         "sudo -H pip install git+https://github.com/ansible/ansible.git@devel boto3",
         "echo 'PATH=\"/root/bin:/root/.local/bin:$PATH\"' | sudo tee --append /root/.profile",
-        "sudo /usr/sbin/useradd ubuntu -G sudo -d /home/ubuntu --create-home",
         "echo 'ubuntu        ALL=(ALL)       NOPASSWD: ALL' | sudo tee --append /etc/sudoers.d/ubuntu",
         "sudo chmod 440 /etc/sudoers.d/ubuntu"
       ]
@@ -69,7 +68,7 @@
     },
     {
       "type": "shell",
-      "execute_command": "echo '{{ user `ssh_password` }}' | sudo -E -S bash '{{.Path}}'",
+      "execute_command": "echo '{{ user `ssh_password` }}' | sudo -E -S bash -e '{{.Path}}'",
       "inline": [
         "gem install serverspec",
         "cd /tmp/serverspec; rake spec"
