@@ -1,22 +1,27 @@
 {
   "variables": {
-    "ansible_roles_path": "./ansible/roles",
     "vpc": "{{env `BUILD_VPC_ID`}}",
     "subnet": "{{env `BUILD_SUBNET_ID`}}",
     "aws_region": "{{env `AWS_REGION`}}",
     "ssh_keypair_name": "{{env `SSH_KEYPAIR_NAME`}}",
     "ssh_private_key_file": "{{env `SSH_PRIVATE_KEY_FILE`}}",
-    "ami_name": "packer-aws-elk-{{isotime \"2006-01-02_15-04-06\"}}",
-    "source_ami": "{{env `JAVA_AMI_ID`}}",
-    "hostname": "vagrant",
-    "ssh_username": "ubuntu",
+    "ami_name": "packer-aws-k8s-{{isotime \"2006-01-02_15-04-06\"}}",
+    "ssh_username": "ec2-user",
     "version": "{{isotime \"20060102.030405\"}}"
   },
   "builders": [
     {
       "type": "amazon-ebs",
       "region": "{{user `aws_region`}}",
-      "source_ami": "{{user `source_ami`}}",
+      "source_ami_filter": {
+          "filters": {
+              "name": "ubuntu/images/hvm-ssd/ubuntu-xenial*",
+              "virtualization-type": "hvm",
+              "root-device-type": "ebs"
+          },
+          "owners": ["099720109477"],
+          "most_recent": true
+      },
       "instance_type": "t2.medium",
       "ssh_username": "{{user `ssh_username`}}",
       "ssh_keypair_name": "{{user `ssh_keypair_name`}}",
@@ -48,39 +53,16 @@
       "playbook_file": "./ansible/playbook.yml"
     },
     {
-	  "type": "file",
-	  "source": "restart_elk_services.sh",
-	  "destination": "/home/vagrant/restart_elk_services.sh"
-	},
-    {
-	  "type": "file",
-	  "source": "check_elk_services.sh",
-	  "destination": "/home/vagrant/check_elk_services.sh"
-	},
+      "type": "file",
+      "source": "./serverspec",
+      "destination": "/tmp/"
+    },
     {
       "type": "shell",
       "execute_command": "echo '{{ user `ssh_password` }}' | sudo -E -S bash '{{.Path}}'",
-      "scripts": [
-        "restart_elk_services.sh",
-        "check_elk_services.sh"
-      ]
-    },
-    {
-      "type": "shell",
       "inline": [
-        "mkdir -p /home/vagrant/{{ user `project_name` }}/serverspec"
-      ]
-    },
-    {
-      "type": "file",
-      "source": "./serverspec",
-      "destination": "/home/vagrant/{{ user `project_name` }}"
-    },
-    {
-      "type": "shell",
-      "inline": [
-        "cd /home/vagrant/{{ user `project_name` }}/serverspec",
-        "rake spec"
+        "source /home/root/.rvm/scripts/rvm;",
+        "cd /tmp/serverspec; rake spec"
       ]
     }
   ]

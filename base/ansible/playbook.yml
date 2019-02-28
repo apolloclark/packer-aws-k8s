@@ -2,8 +2,8 @@
 ---
 # playbook.yml
 
-- hosts: all
-  connection: ssh
+- hosts: localhost
+  connection: local
   gather_facts: yes
   become: true
   vars_files:
@@ -12,12 +12,6 @@
     - geerlingguy.firewall
     - geerlingguy.git
     - apolloclark.nano_highlighting
-    - geerlingguy.java
-    - apolloclark.zookeeper
-    - apolloclark.kafka
-    - apolloclark.elasticsearch
-    - apolloclark.logstash
-    - apolloclark.kibana
     - apolloclark.auditbeat
     - apolloclark.filebeat
     - apolloclark.packetbeat
